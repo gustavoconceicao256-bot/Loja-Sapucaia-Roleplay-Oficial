@@ -1,4 +1,12 @@
 {
   "developerRoleId": "1548725860390015027",
-  "updateInterval": 30000
+  "updateInterval": 30000,
+  "status": {
+    "onlineEmoji": "🟢",
+    "offlineEmoji": "🔴"
+  },
+  "embed": {
+    "color": "#ff0066",
+    "footer": "Sapucaia Roleplay • Sistema automático"
+  }
 }
