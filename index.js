@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 
 const {
@@ -12,9 +11,8 @@ const {
 const configCommand = require("./src/commands/config");
 const statusCommand = require("./src/commands/status");
 
-const {
-  updatePanel
-} = require("./utils/panel");
+const ready = require("./events/ready");
+const interactionCreate = require("./events/interactionCreate");
 
 const client = new Client({
   intents: [
@@ -24,6 +22,10 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+
+// ================================
+// REGISTRAR COMANDOS
+// ================================
 
 client.commands.set(
   configCommand.command.name,
@@ -35,14 +37,16 @@ client.commands.set(
   statusCommand
 );
 
+// ================================
+// EVENTO READY
+// ================================
+
 client.once("ready", async () => {
-  console.log(`🤖 ${client.user.tag} conectado!`);
+  await ready(client);
 
   const rest = new REST({
     version: "10"
-  }).setToken(
-    process.env.DISCORD_TOKEN
-  );
+  }).setToken(process.env.DISCORD_TOKEN);
 
   try {
     await rest.put(
@@ -58,73 +62,36 @@ client.once("ready", async () => {
       }
     );
 
-    console.log("✅ Comandos registrados.");
+    console.log("✅ Comandos registrados com sucesso!");
   } catch (error) {
     console.error(
       "❌ Erro ao registrar comandos:",
       error
     );
   }
-
-  await updatePanel(client);
-
-  setInterval(
-    () => updatePanel(client),
-    30000
-  );
-
-  console.log(
-    "🔄 Atualização automática ativada: 30 segundos."
-  );
 });
+
+// ================================
+// INTERAÇÕES
+// ================================
 
 client.on(
   "interactionCreate",
-  async interaction => {
-    try {
-      if (interaction.isChatInputCommand()) {
-        const command = client.commands.get(
-          interaction.commandName
-        );
-
-        if (!command) return;
-
-        await command.execute(interaction);
-        return;
-      }
-
-      if (interaction.isButton()) {
-        await configCommand.handleButton(
-          interaction
-        );
-        return;
-      }
-
-      if (interaction.isModalSubmit()) {
-        await configCommand.handleModal(
-          interaction
-        );
-
-        await updatePanel(client);
-        return;
-      }
-    } catch (error) {
-      console.error(error);
-
-      if (
-        !interaction.replied &&
-        !interaction.deferred
-      ) {
-        await interaction.reply({
-          content:
-            "❌ Ocorreu um erro ao executar esta ação.",
-          ephemeral: true
-        });
-      }
-    }
+  async (interaction) => {
+    await interactionCreate(interaction);
   }
 );
 
-client.login(
-  process.env.DISCORD_TOKEN
-);
+// ================================
+// LOGIN
+// ================================
+
+if (!process.env.DISCORD_TOKEN) {
+  console.error(
+    "❌ DISCORD_TOKEN não foi configurado no arquivo .env"
+  );
+
+  process.exit(1);
+}
+
+client.login(process.env.DISCORD_TOKEN);
