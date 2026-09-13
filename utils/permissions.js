@@ -1,4 +1,4 @@
-const settings = require("../configuração/settings.json");
+const settings = require("../config/settings.json");
 
 function isDeveloper(member) {
   if (!member || !member.roles) {
