@@ -1,1 +1,17 @@
-
+{
+  "servidor": {
+    "nome": "Sapucaia Roleplay",
+    "ip": "",
+    "logo": "",
+    "banner": "",
+    "restart": "18:00"
+  },
+  "links": {
+    "loja": "",
+    "conectar": ""
+  },
+  "status": {
+    "channelId": "",
+    "messageId": ""
+  }
+}
